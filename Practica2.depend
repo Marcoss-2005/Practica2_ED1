@@ -9,7 +9,7 @@
 	"cola.h"
 	"lista.h"
 
-1780040090 source:c:\users\marcos\desktop\estructura de datos 1\practica2\main.cpp
+1780040885 source:c:\users\marcos\desktop\estructura de datos 1\practica2\main.cpp
 	<iostream>
 	<string>
 	<cstring>
@@ -33,7 +33,7 @@
 1778658404 c:\users\marcos\desktop\estructura de datos 1\practica2\cola.h
 	"paciente.h"
 
-1780039726 source:c:\users\marcos\desktop\estructura de datos 1\practica2\monitorizacionhospitales.cpp
+1780041850 source:c:\users\marcos\desktop\estructura de datos 1\practica2\monitorizacionhospitales.cpp
 	<iostream>
 	<cstring>
 	"MonitorizacionHospitales.h"

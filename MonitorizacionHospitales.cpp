@@ -552,78 +552,70 @@ bool MonitorizacionHospitales::modificarCamasHospital(int idHospital, int maxCam
 }
 bool MonitorizacionHospitales::ingresarPacienteSistema(Paciente p, cadena &lugarDestino, bool &enEspera)
 {
-    //Este es para meter un paciente en el sistama, intentamos encontrarlo para que no se duplique
-    bool conseguido=false;
-    int nHospitales=this->numHospitales;
-    int masCamasLibres=0;
-    int booleanoNum=0;
+    Hospital *aux=this->primerHospital;
+    bool ingresado=true;
+    int booleanoParaCout=0;
 
-    Hospital *adecuado=NULL;
-
-    for(int i=0; i<nHospitales&&booleanoNum!=3; i++)
-    {
-        Hospital* hActual=this->buscarHospital(i);
-        if(hActual!=NULL&&hActual->estaActivo())
-        {
-            if(hActual->buscarPaciente(p.historialClinico))
-            {
-                booleanoNum=3;
-            }
-            else
-            {
-                //si no vamos cogiendo el hospital con mas camas libres
-                if((this->buscarHospital(i)->getMaxCamas()-this->buscarHospital(i)->getNumPacientesIngresados())>masCamasLibres)
-                {
-                    adecuado=this->buscarHospital(i);
-                    masCamasLibres=this->buscarHospital(i)->getMaxCamas()-this->buscarHospital(i)->getNumPacientesIngresados();
-                    booleanoNum=1;
-                    conseguido=true;
+    while(aux!=NULL){
+        if(aux->buscarPaciente(p.historialClinico)){
+            ingresado=false;
+        }
+        aux=aux->getSiguienteHospital();
+    }
+    if(!ingresado){
+            booleanoParaCout=1;
+    }else{
+        Hospital *auxCamas=this->primerHospital;
+        int masCamas=0;
+        Hospital *camado=NULL;
+        while(auxCamas!=NULL){
+                if(auxCamas->estaActivo()&&(auxCamas->getMaxCamas()-auxCamas->getNumPacientesIngresados()>masCamas)){
+                    masCamas=auxCamas->getMaxCamas()-auxCamas->getNumPacientesIngresados();
+                    camado=auxCamas;
                 }
-            }
+                auxCamas=auxCamas->getSiguienteHospital();
         }
+        if(masCamas>0){
+                camado->ingresarPaciente(p);
+                enEspera=false;
+                camado->getNombreHospital(lugarDestino);
+                booleanoParaCout=2;
+        }else{
+            Hospital *auxEspera=this->primerHospital;
+            int espera=0;
+            Hospital *esperado=NULL;
 
-    }
-    if(!conseguido&&booleanoNum!=3&&this->primerHospital!=NULL)
-    {
-        //Si no tenemos hospital donde mandarlo aun, lo metemos en una lista de espera de alguno
-        int menosPacientesEspera=this->primerHospital->getNumPacientesEnEspera();
-        for(int i=0; i<nHospitales; i++)
-        {
-            //Si encontramos hueco se lo hacemos saber a nuestra variable
-            Hospital* lulu=this->buscarHospital(i);
-            if((lulu!=NULL&&lulu->getNumPacientesEnEspera())<menosPacientesEspera&&lulu->estaActivo())
-            {
-                adecuado=lulu;
-                menosPacientesEspera=lulu->getNumPacientesEnEspera();
-                booleanoNum=2;
-                conseguido=true;
+            while(auxEspera!=NULL){
+                    if(auxEspera->estaActivo()&&(maxColaEspera-auxEspera->getNumPacientesEnEspera()>espera)){
+                        espera=maxColaEspera-auxEspera->getNumPacientesEnEspera();
+                        esperado=auxEspera;
+                    }
+                    auxEspera=auxEspera->getSiguienteHospital();
+            }
+            if(espera>0){
+                esperado->ingresarPaciente(p);
+                esperado->getNombreHospital(lugarDestino);
+                enEspera=true;
+                booleanoParaCout=3;
+            }else{
+                strcpy(lugarDestino, "COLA GLOBAL");
+                enEspera=true;
+                this->colaGlobal.encolar(p);
+                booleanoParaCout=4;
             }
         }
     }
-    if(conseguido&&adecuado!=NULL)
-    {
-        adecuado->ingresarPaciente(p);
-        if(booleanoNum==1)
-        {
-            adecuado->getNombreHospital(lugarDestino);
-            enEspera=false;
-        }
-        else
-        {
-            strcpy(lugarDestino, "COLA GLOBAL");
-            enEspera=true;
-            this->colaGlobal.encolar(p);
-        }
-    }
-    else
-    {
+    if(booleanoParaCout==1){
         cout<<"El paciente ya existe"<<endl;
+    }else if(booleanoParaCout==2){
+        cout<<"Paciente ingresado en lista de ingresados de "<<lugarDestino<<endl;
+    }else if(booleanoParaCout==3){
+        cout<<"Paciente ingresado en cola de espera de "<<lugarDestino<<endl;
+    }else if(booleanoParaCout==4){
+        cout<<"Paciente ingresado en "<<lugarDestino<<endl;
     }
-    if(booleanoNum==3)
-    {
-        cout<<"El paciente ya existe"<<endl;
-    }
-    return conseguido;
+    return ingresado;
+
 }
 //Este es igual pero para quitarlo de la lista de pacientes
 bool MonitorizacionHospitales::bajaPacienteSistema(int idPaciente, cadena &lugarOrigen)
@@ -703,7 +695,7 @@ void MonitorizacionHospitales::mostrarInformacionHospitales(int n)
 
                 //Queremos saber las camas disponibles y los huecos en la cola
                 int camasDisponibles = aux->getMaxCamas() - aux->getNumPacientesIngresados();
-                int huecosColaDisponibles = 10 - aux->getNumPacientesEnEspera(); // Pongo 10 por poner
+                int huecosColaDisponibles = maxColaEspera - aux->getNumPacientesEnEspera(); // Pongo maxcolaespera porque es lo que tenemos definido
                 float gravedadMedia = aux->gravedadMedia(); // este metodo lo voy a crear nuevo para cumplir con el enuncdo
 
                 cout << "------------------------------------------" << endl;

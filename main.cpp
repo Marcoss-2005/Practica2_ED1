@@ -240,7 +240,7 @@ int main()
             string patologia;
             cout<<"Digame su nombre"<<endl;
             cin>>nombre;
-            while(numClinico<=0)
+            do
             {
                 cout<<"Digame su numClinico"<<endl;
                 cin>>numClinico;
@@ -250,11 +250,11 @@ int main()
                     cin.ignore(10000,'\n');
                     numClinico=-1;
                 }
-            }
+            }while(numClinico<=0);
             cout<<"Digame su tipo de sangre"<<endl;
             cin>>tipoSangre;
-            while(gradoGravedad>0&&gradoGravedad<5)
-            {
+
+            do{
                 cout<<"Digame su estado(Numero del 1 al 5 siendo 1 poco grave)"<<endl;
                 cin>>gradoGravedad;
                 if(cin.fail())
@@ -263,7 +263,7 @@ int main()
                     cin.ignore(10000,'\n');
                     gradoGravedad=-1;
                 }
-            }
+            }while(gradoGravedad<1&&gradoGravedad>5);
             cout<<"Cual es su patologia"<<endl;
             cin>>patologia;
             Paciente p;
