@@ -139,7 +139,8 @@ int main()
                     cin.ignore(10000,'\n');
                     id=-1;
                 }
-            }while(id<=0);
+            }
+            while(id<=0);
             if(gestor.eliminarHospital(id))
             {
                 cout<<"Hospital eliminado con exito"<<endl;
@@ -187,7 +188,7 @@ int main()
         case 7:
         {
             int id;
-            while(id<=0)
+            do
             {
                 cout<<"Introduzca el identificador del hospital el cual desea declarar 'SIN SANGRE'"<<endl;
                 cin>>id;
@@ -198,6 +199,7 @@ int main()
                     id=-1;
                 }
             }
+            while(id<=0);
             gestor.declararSinSangre(id);
             break;
         }
@@ -215,7 +217,8 @@ int main()
                     cin.ignore(10000,'\n');
                     id=-1;
                 }
-            }while(id<=0);
+            }
+            while(id<=0);
             do
             {
                 cout<<"Introduzca el nuevo numero de camas(mas de 5)"<<endl;
@@ -226,7 +229,8 @@ int main()
                     cin.ignore(10000,'\n');
                     camasN=-1;
                 }
-            }while(camasN<=5);
+            }
+            while(camasN<=5);
             gestor.modificarCamasHospital(id,camasN);
             break;
 
@@ -250,11 +254,13 @@ int main()
                     cin.ignore(10000,'\n');
                     numClinico=-1;
                 }
-            }while(numClinico<=0);
+            }
+            while(numClinico<=0);
             cout<<"Digame su tipo de sangre"<<endl;
             cin>>tipoSangre;
 
-            do{
+            do
+            {
                 cout<<"Digame su estado(Numero del 1 al 5 siendo 1 poco grave)"<<endl;
                 cin>>gradoGravedad;
                 if(cin.fail())
@@ -263,7 +269,8 @@ int main()
                     cin.ignore(10000,'\n');
                     gradoGravedad=-1;
                 }
-            }while(gradoGravedad<1&&gradoGravedad>5);
+            }
+            while(gradoGravedad<1&&gradoGravedad>5);
             cout<<"Cual es su patologia"<<endl;
             cin>>patologia;
             Paciente p;
@@ -276,7 +283,8 @@ int main()
             strcpy(p.patologia, patologia.c_str());
             cadena lugarDestino;
             bool enEspera = false;
-            if(gestor.ingresarPacienteSistema(p,lugarDestino,enEspera)){
+            if(gestor.ingresarPacienteSistema(p,lugarDestino,enEspera))
+            {
                 cout<<"Paciente ingresado con exito"<<endl;
             }
             break;
@@ -285,10 +293,16 @@ int main()
         case 10:
         {
             int numHistorialClinico;
-            while(numHistorialClinico<=0){
+            while(numHistorialClinico<=0)
+            {
                 cout<<"Digame su numero de historial Clinico"<<endl;
                 cin>>numHistorialClinico;
-                if(cin.fail()){ cin.clear(); cin.ignore(10000,'\n'); numHistorialClinico=-1; }
+                if(cin.fail())
+                {
+                    cin.clear();
+                    cin.ignore(10000,'\n');
+                    numHistorialClinico=-1;
+                }
             }
             break;
 

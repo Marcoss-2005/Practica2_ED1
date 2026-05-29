@@ -298,18 +298,18 @@ bool Hospital::faltaSangre()
 {
     //declaramos el booleano y miramos si esta ya sin sangre
     bool sangre=true;
-    if(this->estaActivo()||strcmp(this->estado,"SIN SANGRE")==0)
+    if (this->estaActivo() && strcmp(this->estado, "SIN SANGRE") != 0)
     {
-        sangre=false;
-    }
-    //si no lo esta, lo seteamos sin sangre y quitamos los pacientes en espera
-    else
-    {
-        strcpy(this->estado,"SIN SANGRE");
+        strcpy(this->estado, "SIN SANGRE");
+
         while (!this->pacientesEnEspera.esVacia())
         {
             this->pacientesEnEspera.desencolar();
         }
+    }
+    else
+    {
+        sangre=false;
 
     }
     return sangre;

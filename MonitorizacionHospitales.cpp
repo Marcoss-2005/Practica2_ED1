@@ -238,9 +238,12 @@ bool MonitorizacionHospitales::eliminarHospital(int idHospital)
     else
     {
         //El segundo auxiliar nos sirve para que cuando queramos eliminar el hospital no se pierda el siguiente a el
-        if(aux2==NULL){
+        if(aux2==NULL)
+        {
             this->primerHospital=aux->getSiguienteHospital();
-        }else{
+        }
+        else
+        {
             aux2->setSiguienteHospital(aux->getSiguienteHospital());
         }
         delete aux;
@@ -340,58 +343,93 @@ bool MonitorizacionHospitales::activarHospital(int idHospital)
 }
 bool MonitorizacionHospitales::declararSinSangre(int idHospital)
 {
-    //Metodo para declarar un hospital sin sangre, lo primero es lo de siempre, comprobar que existe
-    bool sinSangre=false;
+    bool sinSangreBool=true;
     Hospital *aux=this->primerHospital;
-    int encontrarHospital=0;
-    if(aux==NULL)
+    Hospital *sinSangre=NULL;
+    int boolComent=0;
+
+    while(aux!=NULL&&sinSangre==NULL)
     {
-        encontrarHospital=1;
+        if(aux->getIdHospital()==idHospital)
+        {
+            sinSangre=aux;
+        }
+        aux=aux->getSiguienteHospital();
+    }
+    if(sinSangre==NULL)
+    {
+        boolComent=1;
     }
     else
     {
-        while(aux!=NULL&&encontrarHospital==0)
+        if(sinSangre->estaInactivo())
         {
-            if(aux->getIdHospital()==idHospital)
+            boolComent=2;
+        }
+        else
+        {
+            int totalEnEspera=sinSangre->getNumPacientesEnEspera();
+
+            if(totalEnEspera>0)
             {
-                encontrarHospital=2;
+                Paciente *perico=new Paciente[totalEnEspera];
+                sinSangre->exportarPacientesEnEspera(perico);
+
+                if(sinSangre->faltaSangre())
+                {
+                    for(int i = 0; i < totalEnEspera; i++)
+                    {
+                        Hospital *exportadaFinal = this->primerHospital;
+                        bool reubicado = false;
+
+                        while(exportadaFinal != NULL && !reubicado)
+                        {
+                            if(exportadaFinal->getIdHospital() != idHospital && exportadaFinal->estaActivo())
+                            {
+                                if(exportadaFinal->ingresarPaciente(perico[i]))
+                                {
+                                    reubicado = true;
+                                }
+                            }
+
+                            if(!reubicado)
+                            {
+                                exportadaFinal = exportadaFinal->getSiguienteHospital();
+                            }
+                        }
+                        if(!reubicado)
+                        {
+                            this->colaGlobal.encolar(perico[i]);
+                        }
+
+                    }
+                    delete[] perico;
+                }else{
+                    boolComent=3;
+                };
             }
             else
             {
-                aux=aux->getSiguienteHospital();
+                sinSangre->faltaSangre();
             }
 
-        }
-        //Si lo encontramos miramos si estaba activo y si lo esta lo declaramos y nos ponemos modo true
-        if(encontrarHospital==2)
-        {
-            if(aux->estaActivo())
-            {
-                aux->faltaSangre();
-                sinSangre=true;
-            }
-            else
-            {
-                encontrarHospital=3;
-            }
+            sinSangreBool = true;
         }
     }
-    if(encontrarHospital == 1)
+    if(boolComent==1)
     {
-        cout << "No hay hospitales registrados." << endl;
-
+        cout<<"Hospital no encontrado"<<endl;
     }
-    else if(encontrarHospital == 3)
+    else if(boolComent==2)
     {
-        cout << "El hospital existe pero no esta ACTIVO." << endl;
-
+        cout<<"Ese hospital ya estaba inactivo"<<endl;
+    }else if(boolComent==3){
+        cout<<"Ese hospital ya estaba sin sangre"<<endl;
+    }else{
+        cout << "Hospital declarado 'SIN SANGRE' con exito" << endl;
     }
-    else if(encontrarHospital == 0)
-    {
-        cout << "Hospital no encontrado." << endl;
 
-    }
-    return sinSangre;
+    return sinSangreBool;
 }
 
 bool MonitorizacionHospitales::desactivarHospital(int idHospital)
@@ -543,7 +581,8 @@ bool MonitorizacionHospitales::modificarCamasHospital(int idHospital, int maxCam
         cout << "Hospital no encontrado." << endl;
 
     }
-    if(camasModif){
+    if(camasModif)
+    {
         cout<<"Camas modificadas con exito"<<endl;
     }
     return camasModif;
@@ -556,48 +595,63 @@ bool MonitorizacionHospitales::ingresarPacienteSistema(Paciente p, cadena &lugar
     bool ingresado=true;
     int booleanoParaCout=0;
 
-    while(aux!=NULL){
-        if(aux->buscarPaciente(p.historialClinico)){
+    while(aux!=NULL)
+    {
+        if(aux->buscarPaciente(p.historialClinico))
+        {
             ingresado=false;
         }
         aux=aux->getSiguienteHospital();
     }
-    if(!ingresado){
-            booleanoParaCout=1;
-    }else{
+    if(!ingresado)
+    {
+        booleanoParaCout=1;
+    }
+    else
+    {
         Hospital *auxCamas=this->primerHospital;
         int masCamas=0;
         Hospital *camado=NULL;
-        while(auxCamas!=NULL){
-                if(auxCamas->estaActivo()&&(auxCamas->getMaxCamas()-auxCamas->getNumPacientesIngresados()>masCamas)){
-                    masCamas=auxCamas->getMaxCamas()-auxCamas->getNumPacientesIngresados();
-                    camado=auxCamas;
-                }
-                auxCamas=auxCamas->getSiguienteHospital();
+        while(auxCamas!=NULL)
+        {
+            if(auxCamas->estaActivo()&&(auxCamas->getMaxCamas()-auxCamas->getNumPacientesIngresados()>masCamas))
+            {
+                masCamas=auxCamas->getMaxCamas()-auxCamas->getNumPacientesIngresados();
+                camado=auxCamas;
+            }
+            auxCamas=auxCamas->getSiguienteHospital();
         }
-        if(masCamas>0){
-                camado->ingresarPaciente(p);
-                enEspera=false;
-                camado->getNombreHospital(lugarDestino);
-                booleanoParaCout=2;
-        }else{
+        if(masCamas>0)
+        {
+            camado->ingresarPaciente(p);
+            enEspera=false;
+            camado->getNombreHospital(lugarDestino);
+            booleanoParaCout=2;
+        }
+        else
+        {
             Hospital *auxEspera=this->primerHospital;
             int espera=0;
             Hospital *esperado=NULL;
 
-            while(auxEspera!=NULL){
-                    if(auxEspera->estaActivo()&&(maxColaEspera-auxEspera->getNumPacientesEnEspera()>espera)){
-                        espera=maxColaEspera-auxEspera->getNumPacientesEnEspera();
-                        esperado=auxEspera;
-                    }
-                    auxEspera=auxEspera->getSiguienteHospital();
+            while(auxEspera!=NULL)
+            {
+                if(auxEspera->estaActivo()&&(maxColaEspera-auxEspera->getNumPacientesEnEspera()>espera))
+                {
+                    espera=maxColaEspera-auxEspera->getNumPacientesEnEspera();
+                    esperado=auxEspera;
+                }
+                auxEspera=auxEspera->getSiguienteHospital();
             }
-            if(espera>0){
+            if(espera>0)
+            {
                 esperado->ingresarPaciente(p);
                 esperado->getNombreHospital(lugarDestino);
                 enEspera=true;
                 booleanoParaCout=3;
-            }else{
+            }
+            else
+            {
                 strcpy(lugarDestino, "COLA GLOBAL");
                 enEspera=true;
                 this->colaGlobal.encolar(p);
@@ -605,13 +659,20 @@ bool MonitorizacionHospitales::ingresarPacienteSistema(Paciente p, cadena &lugar
             }
         }
     }
-    if(booleanoParaCout==1){
+    if(booleanoParaCout==1)
+    {
         cout<<"El paciente ya existe"<<endl;
-    }else if(booleanoParaCout==2){
+    }
+    else if(booleanoParaCout==2)
+    {
         cout<<"Paciente ingresado en lista de ingresados de "<<lugarDestino<<endl;
-    }else if(booleanoParaCout==3){
+    }
+    else if(booleanoParaCout==3)
+    {
         cout<<"Paciente ingresado en cola de espera de "<<lugarDestino<<endl;
-    }else if(booleanoParaCout==4){
+    }
+    else if(booleanoParaCout==4)
+    {
         cout<<"Paciente ingresado en "<<lugarDestino<<endl;
     }
     return ingresado;

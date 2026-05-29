@@ -1,7 +1,7 @@
 # depslib dependency file v1.0
 1777388118 source:c:\users\marcos\desktop\estructura de datos 1\hospital.cpp
 
-1779375678 source:c:\users\marcos\desktop\estructura de datos 1\practica2\hospital.cpp
+1780051032 source:c:\users\marcos\desktop\estructura de datos 1\practica2\hospital.cpp
 	<iostream>
 	<string>
 	<cstring>
@@ -9,7 +9,7 @@
 	"cola.h"
 	"lista.h"
 
-1780040885 source:c:\users\marcos\desktop\estructura de datos 1\practica2\main.cpp
+1780050607 source:c:\users\marcos\desktop\estructura de datos 1\practica2\main.cpp
 	<iostream>
 	<string>
 	<cstring>
@@ -33,7 +33,7 @@
 1778658404 c:\users\marcos\desktop\estructura de datos 1\practica2\cola.h
 	"paciente.h"
 
-1780041850 source:c:\users\marcos\desktop\estructura de datos 1\practica2\monitorizacionhospitales.cpp
+1780050443 source:c:\users\marcos\desktop\estructura de datos 1\practica2\monitorizacionhospitales.cpp
 	<iostream>
 	<cstring>
 	"MonitorizacionHospitales.h"
