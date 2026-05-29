@@ -128,8 +128,8 @@ int main()
         }
         case 4:
         {
-            int id;
-            while(id<=0)
+            int id=-1;
+            do
             {
                 cout<<"Introduzca el identificador del hospital que desea eliminar"<<endl;
                 cin>>id;
@@ -139,7 +139,7 @@ int main()
                     cin.ignore(10000,'\n');
                     id=-1;
                 }
-            }
+            }while(id<=0);
             if(gestor.eliminarHospital(id))
             {
                 cout<<"Hospital eliminado con exito"<<endl;
@@ -168,7 +168,7 @@ int main()
         }
         case 6:
         {
-            int id;
+            int id=-1;
             do
             {
                 cout<<"Introduzca el identificador del hospital el cual desea desactivar"<<endl;
@@ -203,9 +203,9 @@ int main()
         }
         case 8:
         {
-            int id;
+            int id=-1;
             int camasN;
-            while(id<=0)
+            do
             {
                 cout<<"Introduzca el identificador del hospital"<<endl;
                 cin>>id;
@@ -215,8 +215,8 @@ int main()
                     cin.ignore(10000,'\n');
                     id=-1;
                 }
-            }
-            while(camasN<5)
+            }while(id<=0);
+            do
             {
                 cout<<"Introduzca el nuevo numero de camas(mas de 5)"<<endl;
                 cin>>camasN;
@@ -226,7 +226,7 @@ int main()
                     cin.ignore(10000,'\n');
                     camasN=-1;
                 }
-            }
+            }while(camasN<=5);
             gestor.modificarCamasHospital(id,camasN);
             break;
 

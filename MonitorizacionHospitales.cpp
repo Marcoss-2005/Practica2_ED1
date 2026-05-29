@@ -220,9 +220,10 @@ bool MonitorizacionHospitales::eliminarHospital(int idHospital)
     Hospital *aux2=NULL;
 
     //Este lo he hecho con la logica de que salga del bucle si encuentra unhospital con el mismo id que el que le hemos pasado por parametros
-    while(aux->getIdHospital()!=idHospital&&aux!=NULL)
+    while(aux!=NULL&&aux->getIdHospital()!=idHospital)
     {
         aux=aux->getSiguienteHospital();
+        aux2=aux;
 
     }
     //Cuando salgamos del bucle podremos saber si lo podemos eliminar o no
@@ -237,13 +238,15 @@ bool MonitorizacionHospitales::eliminarHospital(int idHospital)
     else
     {
         //El segundo auxiliar nos sirve para que cuando queramos eliminar el hospital no se pierda el siguiente a el
-        aux2=aux;
-        aux=aux->getSiguienteHospital();
-        delete aux2;
-        //importante actualizar el numero de hospitales
+        if(aux2==NULL){
+            this->primerHospital=aux->getSiguienteHospital();
+        }else{
+            aux2->setSiguienteHospital(aux->getSiguienteHospital());
+        }
+        delete aux;
         this->numHospitales--;
-        hospitalEliminado=true;
-        cout<<"Ese hospital con id "<<idHospital<<" ha sido eliminado"<<endl;
+        hospitalEliminado = true;
+        cout << "Ese hospital con id " << idHospital << " ha sido eliminado." << endl;
     }
     return hospitalEliminado;
 }
@@ -422,7 +425,6 @@ bool MonitorizacionHospitales::desactivarHospital(int idHospital)
                 desactivado=true;
                 //Si llegamos aqui es porque ha salido correcto, vamos a crear un puntero del tamaño de
                 //el numero de pacientes que haya
-                aux->desactivar();
                 int totalIngresados=aux->getNumPacientesIngresados();
                 int totalEnEspera=aux->getNumPacientesEnEspera();
 
@@ -456,6 +458,7 @@ bool MonitorizacionHospitales::desactivarHospital(int idHospital)
                     }
                     delete[] nuevaLista;
                 }
+                aux->desactivar();
             }
             else
             {
@@ -492,7 +495,7 @@ bool MonitorizacionHospitales::modificarCamasHospital(int idHospital, int maxCam
     bool camasModif=false;
     Hospital *aux=this->primerHospital;
     int encontrarHospital=0;
-    if(aux==NULL&&maxCamas>=5)
+    if(aux==NULL&&maxCamas<=5)
     {
         encontrarHospital=1;
     }
@@ -539,6 +542,9 @@ bool MonitorizacionHospitales::modificarCamasHospital(int idHospital, int maxCam
     {
         cout << "Hospital no encontrado." << endl;
 
+    }
+    if(camasModif){
+        cout<<"Camas modificadas con exito"<<endl;
     }
     return camasModif;
 
