@@ -1,0 +1,60 @@
+# depslib dependency file v1.0
+1777388118 source:c:\users\marcos\desktop\estructura de datos 1\hospital.cpp
+
+1779375678 source:c:\users\marcos\desktop\estructura de datos 1\practica2\hospital.cpp
+	<iostream>
+	<string>
+	<cstring>
+	"hospital.h"
+	"cola.h"
+	"lista.h"
+
+1779375715 source:c:\users\marcos\desktop\estructura de datos 1\practica2\main.cpp
+	<iostream>
+	<string>
+	<cstring>
+	"MonitorizacionHospitales.h"
+	"hospital.h"
+
+1779355376 c:\users\marcos\desktop\estructura de datos 1\practica2\hospital.h
+	<iostream>
+	<cstring>
+	"lista.h"
+	"cola.h"
+
+1778658614 c:\users\marcos\desktop\estructura de datos 1\practica2\lista.h
+	"paciente.h"
+
+1779214017 c:\users\marcos\desktop\estructura de datos 1\practica2\paciente.h
+	<iostream>
+	<cstring>
+
+1778658404 c:\users\marcos\desktop\estructura de datos 1\practica2\cola.h
+	"paciente.h"
+
+1779375678 source:c:\users\marcos\desktop\estructura de datos 1\practica2\monitorizacionhospitales.cpp
+	<iostream>
+	<cstring>
+	"MonitorizacionHospitales.h"
+	"hospital.h"
+
+1778658632 c:\users\marcos\desktop\estructura de datos 1\practica2\monitorizacionhospitales.h
+	<iostream>
+	"cola.h"
+	<cstring>
+	"hospital.h"
+
+1778660786 source:c:\users\marcos\desktop\estructura de datos 1\practica2\lista.cpp
+	<iostream>
+	<string>
+	"lista.h"
+
+1778660832 source:c:\users\marcos\desktop\estructura de datos 1\practica2\cola.cpp
+	"Cola.h"
+	<iostream>
+
+1779375864 source:c:\users\marcos\desktop\estructura de datos 1\practica2\generador.cpp
+	<iostream>
+	<cstring>
+	"MonitorizacionHospitales.h"
+
