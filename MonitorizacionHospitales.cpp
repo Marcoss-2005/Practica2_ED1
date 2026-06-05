@@ -10,7 +10,7 @@ bool MonitorizacionHospitales::existeHospital(int idHospital)
     bool existe=false;
     Hospital *aux=this->primerHospital;
     //Con un while, recorremos los hospitales hasta que encontremos el que el usuario nos pide
-    while(!existe)
+    while(!existe&&aux!=NULL)
     {
         //Ningun misterio vaya
         if(aux->getIdHospital()==idHospital)
@@ -98,18 +98,21 @@ Hospital* MonitorizacionHospitales::buscarHospitalConMasCamasLibres()
 {
     Hospital *aux=this->primerHospital;
     Hospital *masCamas=NULL;
+    int maxLib=-1;
 
     //Lo mismo que antes pero una logica diferente
-    while(aux!=NULL)
+    while(aux != NULL)
     {
-        //Si la resta de los pacientes ingresados con las camas es mayor que el que tenemos se setea
-        if(aux->getMaxCamas()-aux->getNumPacientesIngresados()>masCamas->getMaxCamas()-masCamas->getNumPacientesIngresados())
+        if(aux->estaActivo())
         {
-            masCamas=aux;
-
+            int libresActual = aux->getMaxCamas() - aux->getNumPacientesIngresados();
+            if(libresActual > maxLib)
+            {
+                maxLib = libresActual;
+                masCamas = aux;
+            }
         }
-        aux=aux->getSiguienteHospital();
-
+        aux = aux->getSiguienteHospital();
     }
     return masCamas;
 
@@ -120,16 +123,21 @@ Hospital* MonitorizacionHospitales::buscarHospitalParaEspera()
 {
     Hospital *aux=this->primerHospital;
     Hospital *menosEspera=NULL;
+    int maxHuecosCla=-1;
 
     while(aux!=NULL)
     {
         //Se setea cuando hay menos pacientes en espera en el hosptal que estamos comparando
-        if(aux->getNumPacientesEnEspera()<menosEspera->getNumPacientesEnEspera())
+        if(aux->estaActivo())
         {
-            menosEspera=aux;
-
+            int huecosLibresCola = maxColaEspera - aux->getNumPacientesEnEspera();
+            if(huecosLibresCola > maxHuecosCla)
+            {
+                maxHuecosCla = huecosLibresCola;
+                menosEspera = aux;
+            }
         }
-        aux=aux->getSiguienteHospital();
+        aux = aux->getSiguienteHospital();
 
     }
     return menosEspera;
@@ -411,6 +419,10 @@ bool MonitorizacionHospitales::declararSinSangre(int idHospital)
             else
             {
                 sinSangre->faltaSangre();
+                //Unico fallo que he visto y no he podido arreglar aun, se pone inactivo en vez de sin sangre por la cara
+                if(sinSangre->estaInactivo()){
+                    sinSangre->faltaSangre();
+                }
             }
 
             sinSangreBool = true;
@@ -466,30 +478,26 @@ bool MonitorizacionHospitales::desactivarHospital(int idHospital)
                 int totalIngresados=aux->getNumPacientesIngresados();
                 int totalEnEspera=aux->getNumPacientesEnEspera();
 
-                if(totalIngresados>0)
+                if(totalEnEspera > 0)
                 {
-                    //Creamos el puntero, exportamos los pacientes y los metemos en nuestro puntero
-                    Paciente* nuevaCola=new Paciente[totalIngresados];
+                    Paciente* nuevaCola = new Paciente[totalEnEspera];
                     aux->exportarPacientesEnEspera(nuevaCola);
-                    //los encolamos en la cola global hasta nuevo aviso
-                    for(int i=0; i<totalEnEspera; i++)
+                    for(int i = 0; i < totalEnEspera; i++)
                     {
                         this->colaGlobal.encolar(nuevaCola[i]);
                     }
-                    //borramos nuestra variable ya que los pacientes ya estan guardados en la cola global
                     delete[] nuevaCola;
                 }
-                //
-                if(totalEnEspera>0)
+
+                if(totalIngresados > 0)
                 {
-                    //Este es igual que el otro solo que primero intentamos meterlo en el sistema y si no ya pues a la cola global
-                    Paciente* nuevaLista=new Paciente[totalEnEspera];
+                    Paciente* nuevaLista = new Paciente[totalIngresados];
                     aux->exportarPacientesIngresados(nuevaLista);
                     cadena lugar;
                     bool enEspera;
                     for (int i = 0; i < totalIngresados; i++)
                     {
-                        if (!this->ingresarPacienteSistema(nuevaLista[i],lugar,enEspera))
+                        if (!this->ingresarPacienteSistema(nuevaLista[i], lugar, enEspera))
                         {
                             this->colaGlobal.encolar(nuevaLista[i]);
                         }
@@ -683,17 +691,16 @@ bool MonitorizacionHospitales::bajaPacienteSistema(int idPaciente, cadena &lugar
 {
     bool conseguido=false;
     int nHospitales=this->numHospitales;
-    Hospital *aux=NULL;
+    Hospital *aux=this->primerHospital;
 
     //Buscamos el paciente en cada hospital
-    for(int i=0; i<nHospitales; i++)
-    {
-        if(this->buscarHospital(i)->buscarPaciente(idPaciente))
-        {
-            conseguido=true;
-            aux=this->buscarHospital(i);
-        }
-
+    while(aux!=NULL&&!conseguido){
+            if(aux->buscarPaciente(idPaciente)){
+                conseguido=true;
+                aux->getNombreHospital(lugarOrigen);
+            }else{
+                aux=aux->getSiguienteHospital();
+            }
     }
     //Si no lo hemos encontrado buscamos en la cola global
     if(!conseguido)
@@ -729,7 +736,6 @@ bool MonitorizacionHospitales::bajaPacienteSistema(int idPaciente, cadena &lugar
             this->colaGlobal.desencolar();
             aux->ingresarPaciente(pGlobal);
         }
-
     }
     return conseguido;
 
@@ -762,8 +768,9 @@ void MonitorizacionHospitales::mostrarInformacionHospitales(int n)
                 cout << "------------------------------------------" << endl;
                 cout << "ID: " << aux->getIdHospital() << endl;
                 cout << "Nombre: " << nombre << endl;
-                cout << "Estado: " << (aux->estaActivo() ? "Activo" : "Inactivo") << endl;
-
+                if(aux->estaActivo()) { cout << "Estado: Activo" << endl; }
+                else if(aux->estaInactivo()) { cout << "Estado: Inactivo" << endl; }
+                else { cout << "Estado: Sin Sangre" << endl; }
                 cout << "Camas disponibles: " << camasDisponibles << endl;
                 cout << "Huecos libres en cola: " << huecosColaDisponibles << endl;
                 cout << "Gravedad media de ingresados: " << gravedadMedia << endl;
@@ -792,20 +799,14 @@ void MonitorizacionHospitales::mostrarInformacionHospitales(int n)
                     cout << "------------------------------------------" << endl;
                     cout << "ID: " << aux->getIdHospital() << endl;
                     cout << "Nombre: " << nombre << endl;
-                    if(aux->estaActivo())
-                    {
-                        cout << "Estado: Activo"<< endl;
-                    }
-                    else
-                    {
-                        cout << "Estado: Inactivo"<< endl;
-
-                    }
+                    if(aux->estaActivo()) { cout << "Estado: Activo" << endl; }
+                    else if(aux->estaInactivo()) { cout << "Estado: Inactivo" << endl; }
+                    else { cout << "Estado: Sin Sangre" << endl; }
                     a++;
                 }
                 else if(aux->getSiguienteHospital()==NULL)
                 {
-                    a+2;
+                    a=2;
                 }
                 else
                 {

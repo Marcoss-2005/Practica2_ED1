@@ -270,7 +270,7 @@ int main()
                     gradoGravedad=-1;
                 }
             }
-            while(gradoGravedad<1&&gradoGravedad>5);
+            while(gradoGravedad<1||gradoGravedad>5);
             cout<<"Cual es su patologia"<<endl;
             cin>>patologia;
             Paciente p;
@@ -293,7 +293,7 @@ int main()
         case 10:
         {
             int numHistorialClinico;
-            while(numHistorialClinico<=0)
+            do
             {
                 cout<<"Digame su numero de historial Clinico"<<endl;
                 cin>>numHistorialClinico;
@@ -303,7 +303,12 @@ int main()
                     cin.ignore(10000,'\n');
                     numHistorialClinico=-1;
                 }
-            }
+            }while(numHistorialClinico<=0);
+            cadena lugarOrigen;
+
+            if(!gestor.bajaPacienteSistema(numHistorialClinico,lugarOrigen)){
+                cout<<"Paciente no encontrado"<<endl;
+            };
             break;
 
         }

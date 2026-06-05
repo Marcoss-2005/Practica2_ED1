@@ -68,7 +68,7 @@ void Hospital::setSiguienteHospital(Hospital* hospi)
 bool Hospital::setMaxCamas(int camas)
 {
     //cumplimos con lo que nos pide el enunciado y devolvemos lo que toque
-    if((strcmp(this->estado,"INACTIVO")==0)&&camas<5)
+    if((strcmp(this->estado,"INACTIVO")==0)&&camas>=5)
     {
         this->maxCamas=camas;
         return true;
@@ -86,9 +86,10 @@ bool Hospital::buscarPaciente(int idPaciente)
     bool encontrado=false;
     int a=0;
     int acabarEspera=0;
+    int longi=pacientesEnEspera.longitud();
 
     //esta cola la recorro con un while
-    while(pacientesEnEspera.longitud()>acabarEspera)
+    while(longi>acabarEspera)
     {
         //Declaramos un paciente que sea el primero
         //y despues vamos comprando hasta que llegemos al final, si se encuentra, cambian las
@@ -166,55 +167,31 @@ bool Hospital::ingresarPaciente(Paciente p)
 }
 bool Hospital::bajaPaciente(int idPaciente)
 {
-    //lo de siempre
-    bool baja=false;
-    int a=0;
-    int acabarEspera=0;
+    bool encontrado=false;
+    int contador=0;
+    int longuitud=this->pacientesEnEspera.longitud();
 
-    //para encontrarle
-    while(this->pacientesEnEspera.longitud()>acabarEspera)
-    {
-        //Igual que antes pero aqui lo quito de la lista y ya esta
-        Paciente Manolo=this->pacientesEnEspera.primero();
-
-        this->pacientesEnEspera.desencolar();
-        if(Manolo.historialClinico==idPaciente)
-        {
-            a=1;
-            baja=true;
+    while(contador<longuitud){
+        contador++;
+        if(this->pacientesEnEspera.primero().historialClinico==idPaciente){
+                encontrado=true;
+                this->pacientesEnEspera.desencolar();
+        }else{
+            this->pacientesEnEspera.encolar(this->pacientesEnEspera.primero());
+            this->pacientesEnEspera.desencolar();
         }
-        else
-        {
-            this->pacientesEnEspera.encolar(Manolo);
-        }
-        acabarEspera++;
     }
-    //Este es mas facil, para eliminar de la lista
-    if(!baja)
-    {
-        Paciente nuevo=pacientesIngresados.observar(idPaciente);
-        if(nuevo.historialClinico>0)
-        {
-            pacientesIngresados.eliminar(nuevo.historialClinico);
-            baja=true;
-        }
-
+    if(!encontrado){
+            this->pacientesIngresados.eliminar(idPaciente);
+                encontrado=true;
+                if(!this->pacientesEnEspera.esVacia())
+                {
+                    Paciente pacienteAscendido = this->pacientesEnEspera.primero();
+                    this->pacientesEnEspera.desencolar();
+                    this->pacientesIngresados.insertar(pacienteAscendido);
+                }
     }
-    if(a==2)
-    {
-
-        cout<<"El paciente ha sido quitado de la lista de espera"<<endl;
-    }
-    else if (a==1)
-    {
-        cout<<"El paciente ha sido quitado del hospital"<<endl;
-
-    }
-    else
-    {
-        cout<<"No hemos encontrado a el paciente"<<endl;
-    }
-    return baja;
+    return encontrado;
 }
 void Hospital::exportarPacientesIngresados(Paciente *ingresados)
 {
@@ -230,13 +207,12 @@ void Hospital::exportarPacientesIngresados(Paciente *ingresados)
 void Hospital::exportarPacientesEnEspera(Paciente *espera)
 {
     //Lo mismo que el anterior pero con la cola
+    Cola auxCl = this->pacientesEnEspera;
     int a=this->pacientesEnEspera.longitud();
     for(int i=0; i<a; i++)
     {
-        Paciente Manolo=this->pacientesEnEspera.primero();
-        espera[i]=this->pacientesEnEspera.primero();
-        this->pacientesEnEspera.desencolar();
-        this->pacientesEnEspera.encolar(Manolo);
+        espera[i]=auxCl.primero();
+        auxCl.desencolar();
     }
 
 }
@@ -284,7 +260,8 @@ bool Hospital::desactivar()
         strcpy(this->estado, "INACTIVO");
         while (!this->pacientesIngresados.esVacia())
         {
-            this->pacientesIngresados.eliminar(1);
+            int idR = this->pacientesIngresados.observar(0).historialClinico;
+            this->pacientesIngresados.eliminar(idR);
         }
         while (!this->pacientesEnEspera.esVacia())
         {

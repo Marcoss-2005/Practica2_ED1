@@ -93,5 +93,6 @@ public:
 // Si se pasa pos = -1, imprime solo los datos de todos los hospitales.
     void mostrarInformacionColaGlobal();
 // Imprime los pacientes que se encuentran en la cola global del sistema.
+
 };
 

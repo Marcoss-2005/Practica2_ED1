@@ -107,12 +107,18 @@ bool Lista::esVacia()
 // Devuelve los datos de un paciente en una posición dada
 Paciente Lista::observar(int i)
 {
+    Paciente devol;
     TNodo_Lista *act = elementos;
-    int v = 1;
+    int v = 0;
     while (v < i && act != NULL)
     {
         act = act->siguiente;
         v++;
     }
-    return act->datos;
+    if(!act==NULL){
+        devol=act->datos;
+    }else{
+        devol.historialClinico=-1;
+    }
+    return devol;
 }
